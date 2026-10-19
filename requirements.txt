@@ -7,4 +7,5 @@ dbt-core==1.12.6
 dbt-duckdb==1.11.0
 mplsoccer==1.8.1
 matplotlib==3.11.2
+adjustText==1.4.0
 jupyter
