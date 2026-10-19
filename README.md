@@ -16,7 +16,9 @@ scrapers (soccerdata) → data/raw (immutable JSON per match)
    → exported aggregates → static website (Next.js + DuckDB-WASM)
 ```
 
-Design choices and trade-offs are logged in [docs/decisions.md](docs/decisions.md).
+Design choices and trade-offs are logged in [docs/decisions.md](docs/decisions.md). Every stat's exact definition is in [docs/metrics.md](docs/metrics.md).
+
+**Data quality:** bronze tables are validated with pandera (types, ranges, uniqueness), and every `dbt build` runs data tests, e.g. player goals + own goals must equal each final score, and each team's minutes must add up to 11 × match length after red cards.
 
 ## Running it locally
 
@@ -27,7 +29,8 @@ py -3.12 -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
 
-python -m pipeline.ingest                    # fetch every finished match not yet saved
+python -m pipeline.run                       # full refresh: ingest -> bronze -> dbt build (+ tests)
+python -m pipeline.run --skip-ingest         # rebuild tables from data already saved
 python -m analysis.shot_map                  # shot map for the latest saved match
 python -m analysis.player_touches            # touch map + heatmap (busiest player, latest match)
 python -m analysis.player_touches data/raw/whoscored/2627/<match_id>.json.gz "Declan Rice"

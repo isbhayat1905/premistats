@@ -1,0 +1,46 @@
+version: 2
+
+models:
+  - name: stg_matches
+    description: One row per match.
+    columns:
+      - name: match_id
+        data_tests: [unique, not_null]
+      - name: home_short
+        description: Null means a team is missing from seeds/team_names.csv.
+        data_tests: [not_null]
+      - name: away_short
+        data_tests: [not_null]
+
+  - name: stg_events
+    description: One row per WhoScored event with derived flags (pass types, shots, zones, progressive passes).
+    data_tests:
+      - unique_combination: {columns: [match_id, event_index]}
+
+  - name: player_match
+    description: One row per player per match played, with minutes on the pitch.
+    data_tests:
+      - unique_combination: {columns: [match_id, player_id]}
+    columns:
+      - name: minutes
+        data_tests:
+          - in_range: {min: 1, max: 140}
+
+  - name: stg_understat_shots
+    columns:
+      - name: shot_id
+        data_tests: [unique, not_null]
+      - name: team
+        description: Null means an Understat team name is missing from seeds/team_names.csv.
+        data_tests: [not_null]
+
+  - name: player_season_stats
+    description: One row per player per season. Feeds player pages and the chart builder.
+    data_tests:
+      - unique_combination: {columns: [season, player_id]}
+    columns:
+      - name: minutes
+        data_tests: [not_null]
+      - name: pass_completion
+        data_tests:
+          - in_range: {min: 0, max: 1}

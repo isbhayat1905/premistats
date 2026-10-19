@@ -53,3 +53,20 @@ One player in one match has roughly 50–120 touches. A smoothed (KDE) heatmap w
 ### 012: Fix — WhoScored backfill was 10× slower than it needed to be
 **Date:** 2026-10-19
 The first full backfill ran at ~107 s per match (~2 hours for the season). Reading soccerdata's source showed that `read_events()` re-downloads the 10-page fixture list on every call unless `force_cache=True`. Our run already fetches a fresh fixture list once at the start, so passing `force_cache=True` is safe, and it brought each match down to ~10 s. **Lesson:** time each step and read the library's code before blaming the website.
+
+### 013: Our own event key, because WhoScored's event `id` isn't unique
+**Date:** 2026-10-19
+Validation found two different events sharing one `id` in a match (an `OffsideGiven` reusing the id of a real pass or tackle). Joining on that id would quietly pair the wrong events. Each event is now keyed by `(match_id, event_index)`, its position in the match's event list, and the provider id is kept as `source_event_id` for reference only.
+
+### 014: Unknown heights/ages are stored as missing, not 0
+**Date:** 2026-10-19
+WhoScored reports 0 cm for players with no recorded height. pandera's range check caught it on the first run. We convert 0 to null in bronze, so averages ("average height of a back four") aren't dragged towards zero.
+
+### 015: dbt for the silver/gold layers, with silver materialised as tables
+**Date:** 2026-10-19
+Stat definitions are SQL in dbt models, version-controlled and tested on every build (`docs/metrics.md` documents each one). Silver started as views but views re-read Parquet through relative paths and re-parse the qualifier JSON on every query, so silver is now materialised as tables (still only a few MB).
+**Data tests** run with every build: goals reconcile with final scores; team minutes add up to 11 × match length after red cards; key uniqueness and value ranges.
+
+### 016: One `pipeline.run` command for the whole refresh
+**Date:** 2026-10-19
+`python -m pipeline.run` = ingest → bronze → `dbt build`. It stops at the first failing step. dbt's output paths are set through environment variables here, because the `dbt_project.yml` settings are deprecated.

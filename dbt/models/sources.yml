@@ -1,0 +1,12 @@
+version: 2
+
+sources:
+  - name: bronze
+    description: Parquet tables written by pipeline/bronze.py (already schema-validated with pandera).
+    meta:
+      external_location: "../data/bronze/{name}.parquet"
+    tables:
+      - name: whoscored_matches
+      - name: whoscored_players
+      - name: whoscored_events
+      - name: understat_shots

@@ -1,0 +1,21 @@
+name: premistats
+version: "0.1.0"
+profile: premistats
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+models:
+  premistats:
+    silver:
+      +materialized: table
+      +schema: silver
+    gold:
+      +materialized: table
+      +schema: gold
+
+seeds:
+  premistats:
+    +schema: ref
