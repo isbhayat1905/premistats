@@ -1,0 +1,20 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Data stays local: scraped data is never republished (see docs/decisions.md)
+data/
+
+# Node / web
+node_modules/
+.next/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Created by the seleniumbase browser driver
+downloaded_files/
