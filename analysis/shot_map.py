@@ -1,17 +1,21 @@
 """Prototype shot map for one match, drawn from a raw Understat file.
 
 Usage:
+    Press the ▶ Run button in VS Code (draws the most recently saved match), or
     python -m analysis.shot_map data/raw/understat/2627/31248.json
 """
 import json
 import sys
 from pathlib import Path
 
+# Let the ▶ Run button find the `pipeline` package, which lives one folder up.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 import matplotlib.pyplot as plt
 import pandas as pd
 from mplsoccer import Pitch
 
-from pipeline.config import ROOT
+from pipeline.config import RAW_DIR, ROOT
 
 SURFACE = "#fcfcfb"
 INK, INK_2, INK_MUTED = "#0b0b0b", "#52514e", "#8a8984"
@@ -92,5 +96,8 @@ def draw(df: pd.DataFrame, out: Path) -> None:
 
 
 if __name__ == "__main__":
-    path = Path(sys.argv[1])
+    if len(sys.argv) > 1:
+        path = Path(sys.argv[1])
+    else:  # no file given: use the match we saved most recently
+        path = max((RAW_DIR / "understat").rglob("*.json"), key=lambda p: p.stat().st_mtime)
     draw(load_shots(path), ROOT / "docs" / "img" / f"shot_map_{path.stem}.png")
