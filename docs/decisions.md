@@ -33,3 +33,19 @@ Understat uses 0–1 and WhoScored uses 0–100 (Opta). We convert everything to
 ### 007: Chart colours come from a validated, colour-blind-safe palette
 **Date:** 2026-10-19
 Home = blue `#2a78d6`, away = orange `#eb6834` (categorical slots 1–2). Goal vs no goal uses filled vs hollow markers as well as colour, so the chart still reads for colour-blind viewers and in greyscale.
+
+### 008: Keep WhoScored's full match-centre JSON as the raw record
+**Date:** 2026-10-19
+soccerdata's default WhoScored output is a trimmed events table. The page actually holds much more (lineups, positions, formation changes by minute, referee, venue), and we'll need those for minutes played and positional filters. We store the whole match-centre object, so nothing has to be re-scraped later.
+
+### 009: Raw files are gzip-compressed and written atomically
+**Date:** 2026-10-19
+A WhoScored match is ~1.2 MB of JSON and ~96 KB gzipped (about 12×), so a full season is ~35 MB rather than ~450 MB. Each file is written to a `.tmp` file and then renamed, so a crash or Ctrl+C never leaves a half-written file that looks valid.
+
+### 010: One idempotent ingest command
+**Date:** 2026-10-19
+`python -m pipeline.ingest` fetches every finished match we don't already have, from every source. Running it twice does nothing the second time (idempotent). A failure on one match is logged and the rest carry on, and the exit code is non-zero so a scheduler can tell something failed.
+
+### 011: Heatmaps use counted zones, not smoothed density, for single matches
+**Date:** 2026-10-19
+One player in one match has roughly 50–120 touches. A smoothed (KDE) heatmap with that few points shows confident-looking blobs that are mostly noise. A 6×5 grid with the count printed in each zone shows exactly what happened. Smoothed heatmaps can come back for season-level views, where there are thousands of touches.

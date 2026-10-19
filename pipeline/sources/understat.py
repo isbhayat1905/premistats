@@ -20,9 +20,9 @@ class UnderstatSource:
             ["match_id", "date", "home_team", "away_team", "home_goals", "away_goals", "is_result"]
         ]
 
-    def get_match_shots(self, season: str, match_id: int) -> list[dict]:
+    def get_match(self, season: str, match_id: int) -> dict:
         shots = self._client(season).read_shot_events(match_id=match_id).reset_index()
         # JSON can't hold pandas timestamps or NA, so convert them to plain values.
         shots["date"] = shots["date"].astype(str)
         shots = shots.astype(object).where(shots.notna(), None)
-        return shots.to_dict(orient="records")
+        return {"shots": shots.to_dict(orient="records")}

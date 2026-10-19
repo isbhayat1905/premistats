@@ -2,9 +2,8 @@
 
 Usage:
     Press the ▶ Run button in VS Code (draws the most recently saved match), or
-    python -m analysis.shot_map data/raw/understat/2627/31248.json
+    python -m analysis.shot_map data/raw/understat/2627/31248.json.gz
 """
-import json
 import sys
 from pathlib import Path
 
@@ -16,6 +15,7 @@ import pandas as pd
 from mplsoccer import Pitch
 
 from pipeline.config import RAW_DIR, ROOT
+from pipeline.raw import read_raw
 
 SURFACE = "#fcfcfb"
 INK, INK_2, INK_MUTED = "#0b0b0b", "#52514e", "#8a8984"
@@ -23,8 +23,7 @@ HOME, AWAY = "#2a78d6", "#eb6834"  # categorical slots 1 & 2 (validated palette)
 
 
 def load_shots(path: Path) -> pd.DataFrame:
-    raw = json.loads(path.read_text(encoding="utf-8"))
-    df = pd.DataFrame(raw["shots"])
+    df = pd.DataFrame(read_raw(path)["data"]["shots"])
     # Understat gives 0-1 coordinates with every team attacking towards x = 1.
     # Scale to 0-100 (the Opta pitch convention) and flip the home side so the
     # home team attacks left and the away team attacks right.
@@ -99,5 +98,5 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         path = Path(sys.argv[1])
     else:  # no file given: use the match we saved most recently
-        path = max((RAW_DIR / "understat").rglob("*.json"), key=lambda p: p.stat().st_mtime)
-    draw(load_shots(path), ROOT / "docs" / "img" / f"shot_map_{path.stem}.png")
+        path = max((RAW_DIR / "understat").rglob("*.json.gz"), key=lambda p: p.stat().st_mtime)
+    draw(load_shots(path), ROOT / "docs" / "img" / f"shot_map_{path.name.split('.')[0]}.png")
