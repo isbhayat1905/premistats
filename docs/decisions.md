@@ -49,3 +49,7 @@ A WhoScored match is ~1.2 MB of JSON and ~96 KB gzipped (about 12×), so a full 
 ### 011: Heatmaps use counted zones, not smoothed density, for single matches
 **Date:** 2026-10-19
 One player in one match has roughly 50–120 touches. A smoothed (KDE) heatmap with that few points shows confident-looking blobs that are mostly noise. A 6×5 grid with the count printed in each zone shows exactly what happened. Smoothed heatmaps can come back for season-level views, where there are thousands of touches.
+
+### 012: Fix — WhoScored backfill was 10× slower than it needed to be
+**Date:** 2026-10-19
+The first full backfill ran at ~107 s per match (~2 hours for the season). Reading soccerdata's source showed that `read_events()` re-downloads the 10-page fixture list on every call unless `force_cache=True`. Our run already fetches a fresh fixture list once at the start, so passing `force_cache=True` is safe, and it brought each match down to ~10 s. **Lesson:** time each step and read the library's code before blaming the website.

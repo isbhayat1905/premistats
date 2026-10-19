@@ -30,9 +30,10 @@ def ingest_source(source, season: str, match_ids: list[int] | None, limit: int |
         match_ids = [int(m) for m in played["match_id"]]
 
     todo = [m for m in match_ids if not raw_path(source.name, season, m).exists()]
-    if limit is not None:
+    print(f"[{source.name}] {len(match_ids) - len(todo)} already saved, {len(todo)} missing")
+    if limit is not None and len(todo) > limit:
         todo = todo[:limit]
-    print(f"[{source.name}] {len(match_ids) - len(todo)} already saved, {len(todo)} to fetch")
+        print(f"[{source.name}] fetching the first {limit} (--limit)")
 
     failed = []
     for i, match_id in enumerate(todo, 1):

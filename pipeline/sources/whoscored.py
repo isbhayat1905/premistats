@@ -39,7 +39,10 @@ class WhoScoredSource:
         # output_fmt=None just downloads and caches the page; we then keep the
         # complete match-centre JSON (events + lineups + formations), not
         # soccerdata's trimmed-down events table.
-        client.read_events(match_id=match_id, output_fmt=None)
+        # force_cache=True stops soccerdata re-downloading the 10-page fixture list
+        # for every single match (list_matches already fetched a fresh copy). This
+        # took a match from ~107 s to a few seconds.
+        client.read_events(match_id=match_id, output_fmt=None, force_cache=True)
         cached = next(client.data_dir.glob(f"events/*_{season}/{match_id}.json"))
         data = json.loads(cached.read_text(encoding="utf-8"))
         if not data or "events" not in data:
