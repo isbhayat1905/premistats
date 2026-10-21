@@ -16,6 +16,7 @@ import duckdb
 import matplotlib.pyplot as plt
 from adjustText import adjust_text
 
+from analysis.branding import add_statsbomb_logo
 from pipeline.config import CURRENT_SEASON, DATA_DIR, ROOT
 
 SURFACE = "#fcfcfb"
@@ -41,10 +42,8 @@ def pretty(col: str) -> str:
     return " ".join(ACRONYMS.get(w, w) for w in words)
 
 
-def credit(x: str, y: str) -> str:
-    # StatsBomb's licence requires credit on anything published from their data (decision 017).
-    uses_xg = any(k in c for c in (x, y) for k in ("xg", "xa"))
-    return "premistats · data: WhoScored" + (" · xG model trained on StatsBomb open data" if uses_xg else "")
+def uses_xg(x: str, y: str) -> bool:
+    return any(k in c for c in (x, y) for k in ("xg", "xa"))
 
 
 def draw(df, x: str, y: str, min_minutes: int, n_labels: int, out: Path) -> None:
@@ -78,7 +77,13 @@ def draw(df, x: str, y: str, min_minutes: int, n_labels: int, out: Path) -> None
     fig.text(0.08, 0.94, f"{pretty(x)} vs {pretty(y)}", fontsize=20, fontweight="bold", color=INK)
     fig.text(0.08, 0.905, f"Premier League 2026/27 · players with {min_minutes}+ minutes ({len(df)}) · "
              "lines show the median", fontsize=12, color=INK_2)
-    fig.text(0.97, 0.02, credit(x, y), fontsize=9, color=INK_MUTED, ha="right")
+    if uses_xg(x, y):
+        # StatsBomb's licence requires their logo on anything published from their data (decision 017).
+        add_statsbomb_logo(fig, right=0.97, bottom=0.012, width=0.12)
+        fig.text(0.84, 0.017, "premistats · data: WhoScored · xG model trained on", fontsize=9,
+                 color=INK_MUTED, ha="right")
+    else:
+        fig.text(0.97, 0.02, "premistats · data: WhoScored", fontsize=9, color=INK_MUTED, ha="right")
 
     out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, dpi=150, facecolor=SURFACE)

@@ -15,6 +15,7 @@ import duckdb
 import matplotlib.pyplot as plt
 import numpy as np
 
+from analysis.branding import add_statsbomb_logo
 from pipeline.config import CURRENT_SEASON, DATA_DIR, ROOT
 
 SURFACE = "#fcfcfb"
@@ -79,7 +80,8 @@ def main() -> None:
     fig.text(0.11, 0.94, "premistats xG vs Understat xG", fontsize=17, fontweight="bold", color=INK)
     fig.text(0.11, 0.9, f"Each dot is one team in one match, PL 2026/27 ({len(df)} team-matches) · "
              f"r = {r_match:.2f}", fontsize=10.5, color=INK_2)
-    fig.text(0.96, 0.02, "premistats · data: WhoScored, Understat; model trained on StatsBomb open data",
+    add_statsbomb_logo(fig, right=0.96, bottom=0.015, width=0.16)
+    fig.text(0.79, 0.02, "premistats · data: WhoScored, Understat · xG model trained on",
              fontsize=8, color=INK_MUTED, ha="right")
     out = ROOT / "docs" / "img" / "xg_vs_understat.png"
     fig.savefig(out, dpi=150, facecolor=SURFACE)
