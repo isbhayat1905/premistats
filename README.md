@@ -1,6 +1,6 @@
 # premistats
 
-Free, advanced Premier League stats and visualisations: shot maps, heatmaps, xG, pass networks and a build-your-own chart tool. Focused on the 2026/27 season.
+Free, advanced Premier League stats and visualisations: shot maps, heatmaps, xG, pass networks and a build-your-own chart tool. 2026/27 season, with 2025/26 archived.
 
 > 🚧 Early development. Currently: the ingestion pipeline and prototype charts.
 
@@ -40,6 +40,6 @@ python -m analysis.player_touches data/raw/whoscored/2627/<match_id>.json.gz "De
 
 Data is collected from public match centres (Understat for shots and xG, WhoScored for event data). Raw scraped data is never republished. The site shows only derived statistics, our own model outputs and charts. If you're a rights holder with concerns, please open an issue.
 
-**xG model:** trained on [StatsBomb open data](https://github.com/statsbomb/open-data) under the StatsBomb Public Data User Agreement (research use, non-commercial, attribution). See [docs/xg_model.md](docs/xg_model.md) for the model card and validation results.
+**xG model:** trained on [StatsBomb open data](https://github.com/statsbomb/open-data) under the StatsBomb Public Data User Agreement (research use, non-commercial, attribution). See [docs/xg_model.md](docs/xg_model.md) for the base model card and [docs/xg_calibration.md](docs/xg_calibration.md) for the Premier League calibration stage (tested on a season it never saw: xG within 1% of actual goals).
 
-![xG calibration](docs/img/xg_calibration.png)
+![xG calibration, PL 2026/27](docs/img/xg_stage2_calibration.png)

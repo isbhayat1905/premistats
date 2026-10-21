@@ -24,7 +24,7 @@ models:
     columns:
       - name: minutes
         data_tests:
-          - in_range: {arguments: {min: 1, max: 140}}
+          - in_range: {arguments: {min: 0, max: 140}}  # 0 = brought on in the final minute (e.g. Yoro, 2025/26)
 
   - name: stg_understat_shots
     columns:

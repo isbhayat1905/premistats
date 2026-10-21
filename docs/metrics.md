@@ -9,7 +9,7 @@ right touchline from the attacker's view. Distances in metres assume a 105 × 68
 ## Playing time
 | Metric | Definition |
 |---|---|
-| Minutes | Time on the pitch using WhoScored's *expanded* minute, which includes stoppage time, so a full match is often 95–100. Starters begin at 0, subs at their entry minute. Players stop at their substitution, a red card, or full time. |
+| Minutes | Time on the pitch using WhoScored's *expanded* minute, which includes stoppage time, so a full match is often 95–100. Starters begin at 0, subs at their entry minute. Players stop at their substitution, a red card, or full time. A sub brought on in the final minute can have 0 minutes: they still count as an appearance. |
 | Per 90 (`_p90`) | `count × 90 / minutes`. Be careful with small samples: compare players with at least ~450 minutes. |
 
 ## Passing
@@ -53,5 +53,5 @@ Full details, results and limitations: [xg_model.md](xg_model.md). Model trained
 ## Data checks that run on every build
 - Each match's goals credited to players, plus own goals, equal the final score.
 - Each team's player-minutes add up to 11 × match length, allowing for red cards (±5 min).
-- Event, player-match and player-season rows are unique; minutes are between 1 and 140.
+- Event, player-match and player-season rows are unique; minutes are between 0 and 140.
 - Every team name maps to a short code and across both sources (`seeds/team_names.csv`).

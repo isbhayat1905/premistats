@@ -92,3 +92,10 @@ On held-out matches (split by match to stop leakage): baseline log loss 0.2727 /
 **Date:** 2026-10-21
 Against Understat on 2026/27, our xG agrees per team per match (r = 0.89) but totals 18% lower (189 vs 232; actual goals 195). Splitting by WhoScored's big-chance flag shows why: big chances convert at 31.6% but we average 24.6%, while other shots convert at 5.1% against our 6.2%. Without defender positions, the model can't tell a tap-in from a crowded shot taken from the same spot.
 **Plan:** keep the StatsBomb model and add a small calibration stage (logistic regression on the base model's logit + the big-chance flag), **trained on the 2025/26 PL season and tested on 2026/27**, so the test season is never used for fitting.
+
+### 022: Stage 2 calibration results, and what they say about Understat
+**Date:** 2026-10-21
+Fitted on all 380 matches of 2025/26 and tested on 2026/27 (never used for fitting), non-penalty shots: log loss 0.2954 → **0.2736**, ROC AUC 0.721 → **0.759**, sum of xG 181.4 → **185.6** against 187 goals. Agreement with Understat per team-match rose from r = 0.89 to **r = 0.96**.
+Our totals now track actual goals (2025/26: 995 xG vs 1,005 goals; 2026/27: 194 vs 195). **Understat's xG totals ran ~18% above actual goals in both seasons** (2025/26: 1,184 vs 1,004), far beyond what luck explains over 380 matches. We report this as an observed difference, not as Understat being "wrong": their model and shot definitions may differ from ours.
+**Also:** the minutes test now allows 0. Leny Yoro came on in the 100th, final minute of Man Utd v Liverpool (2025/26): a real appearance with no time on the clock.
+**Caveat (worth knowing for interviews):** the fitted slope on the base model's logit is only 0.31, while the big-chance coefficient is 1.99. Once the model knows whether a shot was a big chance, location adds less than you'd expect, so stage 2 leans heavily on WhoScored's (human-judged) big-chance tag. If WhoScored changed how it tags big chances, the calibration would need refitting.

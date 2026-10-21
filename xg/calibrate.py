@@ -90,7 +90,7 @@ def plot(test: pd.DataFrame, season: str, out: Path) -> None:
         frac, mean_pred = calibration_curve(test["is_goal"], test[col], n_bins=10, strategy="quantile")
         ax.plot(mean_pred, frac, color=colour, lw=2, marker="o", ms=6, markeredgecolor=SURFACE,
                 markeredgewidth=1.5, label=label, zorder=3)
-    lim = 0.65
+    lim = 0.5
     ax.set_xlim(0, lim)
     ax.set_ylim(0, lim)
     ax.set_xlabel("Predicted xG", fontsize=12, color=INK_2)

@@ -13,7 +13,7 @@ Estimates assume roughly **10–15 hours a week**. Each phase includes a few day
 | Phase | Dates | Goal | Status |
 |---|---|---|---|
 | 1. Foundations & pipeline | 19 Oct | Data in, cleaned, tested | ✅ Done |
-| 2. xG model | 20 Oct – 1 Nov | Our own xG, trained and evaluated | ⏳ In progress (v1 done 21 Oct) |
+| 2. xG model | 20 Oct – 1 Nov | Our own xG, trained and evaluated | ✅ Done 21 Oct (write-up left) |
 | 3. Match & team analytics | 2 Nov – 15 Nov | Match pages' data, team style, export layer | |
 | 4. Website MVP | 16 Nov – 13 Dec | Live site with the core visuals | |
 | 🚀 **Public beta** | **14 Dec** | Shareable before the busy Christmas fixtures | |
@@ -49,8 +49,8 @@ Estimates assume roughly **10–15 hours a week**. Each phase includes a few day
 - [x] Evaluate: log loss, Brier, ROC AUC, calibration plot, feature importance → `docs/xg_model.md`
 - [x] Apply to WhoScored shots inside dbt (Python model `shot_xg`) + 3 new tests
 - [x] Compare against Understat: r = 0.89 per team-match, but 18% lower → big chances under-rated (decision 021)
-- [ ] Backfill 2025/26 (brought forward from Phase 6) and train the big-chance calibration stage on it
-- [ ] Re-validate calibrated xG on 2026/27
+- [x] Backfill 2025/26 (brought forward from Phase 6): 380 matches, 0 failures; stage 2 calibration trained on it
+- [x] Re-validate on 2026/27: r = 0.96 vs Understat, xG within 1% of goals (decision 022)
 - [x] Add xG / npxG / xA / goals − xG / npxG per shot to `player_season_stats`
 - [ ] Link players across WhoScored and Understat (names differ, e.g. accents)
 - [ ] ✍️ **You write:** "Building an xG model from scratch" (write-up #1)
@@ -98,7 +98,8 @@ Estimates assume roughly **10–15 hours a week**. Each phase includes a few day
 
 ## Phase 6: Past season + polish (11 Jan – 31 Jan)
 
-- [ ] Backfill 2025/26 (all 380 matches) and add a season switcher on the site
+- [x] ~~Backfill 2025/26~~ (done early, 21 Oct)
+- [ ] Add a season switcher on the site
 - [ ] GitHub Actions CI: lint, dbt tests on sample data, site build; badges in the README
 - [ ] Performance and accessibility pass; fix beta feedback
 - [ ] README as a case study: architecture diagram, lineage, lessons learned
