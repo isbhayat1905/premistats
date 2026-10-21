@@ -9,6 +9,7 @@
     'take_ons', 'take_ons_won', 'tackles', 'interceptions', 'ball_recoveries',
     'clearances', 'aerials', 'aerials_won', 'fouls_committed', 'dispossessed',
 ] %}
+{% set expected = ['xg', 'npxg', 'xa'] %}
 
 with appearances as (
     select
@@ -67,6 +68,22 @@ actions as (
     join {{ ref('stg_matches') }} m using (match_id)
     where e.player_id is not null
     group by all
+),
+
+-- premistats xG (silver.shot_xg). xA credits the passer with the xG of the shot they set up.
+shooting as (
+    select m.season, s.player_id, sum(s.xg) as xg, sum(s.xg) filter (where s.situation <> 'penalty') as npxg
+    from {{ ref('shot_xg') }} s
+    join {{ ref('stg_matches') }} m using (match_id)
+    group by all
+),
+
+creating as (
+    select m.season, s.assist_player_id as player_id, sum(s.xg) as xa
+    from {{ ref('shot_xg') }} s
+    join {{ ref('stg_matches') }} m using (match_id)
+    where s.assist_player_id is not null
+    group by all
 )
 
 select
@@ -81,6 +98,14 @@ select
     {% for c in counts %}
     coalesce(x.{{ c }}, 0) as {{ c }},
     {% endfor %}
+    round(coalesce(sh.xg, 0), 2) as xg,
+    round(coalesce(sh.npxg, 0), 2) as npxg,
+    round(coalesce(cr.xa, 0), 2) as xa,
+    round(coalesce(x.goals, 0) - coalesce(sh.xg, 0), 2) as goals_minus_xg,
+    round(coalesce(sh.npxg, 0) / nullif(x.shots - (x.goals - x.non_penalty_goals), 0), 3) as npxg_per_shot,
+    {% for c in expected %}
+    round(coalesce({{ 'cr' if c == 'xa' else 'sh' }}.{{ c }}, 0) * 90.0 / nullif(a.minutes, 0), 2) as {{ c }}_p90,
+    {% endfor %}
     round(x.passes_completed / nullif(x.passes, 0), 3) as pass_completion,
     round(x.take_ons_won / nullif(x.take_ons, 0), 3) as take_on_success,
     round(x.aerials_won / nullif(x.aerials, 0), 3) as aerial_win_rate,
@@ -89,3 +114,5 @@ select
     {% endfor %}
 from appearances a
 left join actions x using (season, player_id)
+left join shooting sh using (season, player_id)
+left join creating cr using (season, player_id)

@@ -13,7 +13,7 @@ Estimates assume roughly **10–15 hours a week**. Each phase includes a few day
 | Phase | Dates | Goal | Status |
 |---|---|---|---|
 | 1. Foundations & pipeline | 19 Oct | Data in, cleaned, tested | ✅ Done |
-| 2. xG model | 20 Oct – 1 Nov | Our own xG, trained and evaluated | ⏳ Next |
+| 2. xG model | 20 Oct – 1 Nov | Our own xG, trained and evaluated | ⏳ In progress (v1 done 21 Oct) |
 | 3. Match & team analytics | 2 Nov – 15 Nov | Match pages' data, team style, export layer | |
 | 4. Website MVP | 16 Nov – 13 Dec | Live site with the core visuals | |
 | 🚀 **Public beta** | **14 Dec** | Shareable before the busy Christmas fixtures | |
@@ -43,13 +43,15 @@ Estimates assume roughly **10–15 hours a week**. Each phase includes a few day
 
 ## Phase 2: xG model (20 Oct – 1 Nov)
 
-- [ ] Download StatsBomb open data (free, licensed for this use)
-- [ ] Feature engineering: distance, angle, body part, situation, big chance, etc.
-- [ ] Train a baseline logistic regression, then a gradient-boosted model
-- [ ] Evaluate: log-loss, Brier score, calibration plot, feature importance
-- [ ] Apply to WhoScored shots → our xG for every PL 2026/27 shot
-- [ ] Compare against Understat's xG (correlation, team season totals)
-- [ ] Add xG / npxG / xA columns to `player_season_stats`
+- [x] Download StatsBomb open data: 1,747 matches, 43,717 shots (licence rules: decision 017)
+- [x] Feature engineering with one shared vocabulary for both providers (decision 018)
+- [x] Train baseline, logistic regression and gradient boosting (boosting chosen)
+- [x] Evaluate: log loss, Brier, ROC AUC, calibration plot, feature importance → `docs/xg_model.md`
+- [x] Apply to WhoScored shots inside dbt (Python model `shot_xg`) + 3 new tests
+- [x] Compare against Understat: r = 0.89 per team-match, but 18% lower → big chances under-rated (decision 021)
+- [ ] Backfill 2025/26 (brought forward from Phase 6) and train the big-chance calibration stage on it
+- [ ] Re-validate calibrated xG on 2026/27
+- [x] Add xG / npxG / xA / goals − xG / npxG per shot to `player_season_stats`
 - [ ] Link players across WhoScored and Understat (names differ, e.g. accents)
 - [ ] ✍️ **You write:** "Building an xG model from scratch" (write-up #1)
 

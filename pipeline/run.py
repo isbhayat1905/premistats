@@ -43,6 +43,7 @@ def main() -> None:
         "DBT_TARGET_PATH": str(DATA_DIR / "dbt" / "target"),
         "DBT_LOG_PATH": str(DATA_DIR / "dbt" / "logs"),
         "DBT_DUCKDB_PATH": str(DATA_DIR / "warehouse.duckdb"),
+        "PREMISTATS_ROOT": str(ROOT),  # lets the xG Python model find the trained model
     }
     dbt = Path(python).with_name("dbt.exe" if os.name == "nt" else "dbt")
     step("dbt build", [str(dbt), "build"], cwd=DBT_DIR, env=dbt_env)

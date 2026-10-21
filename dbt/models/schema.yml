@@ -15,16 +15,16 @@ models:
   - name: stg_events
     description: One row per WhoScored event with derived flags (pass types, shots, zones, progressive passes).
     data_tests:
-      - unique_combination: {columns: [match_id, event_index]}
+      - unique_combination: {arguments: {columns: [match_id, event_index]}}
 
   - name: player_match
     description: One row per player per match played, with minutes on the pitch.
     data_tests:
-      - unique_combination: {columns: [match_id, player_id]}
+      - unique_combination: {arguments: {columns: [match_id, player_id]}}
     columns:
       - name: minutes
         data_tests:
-          - in_range: {min: 1, max: 140}
+          - in_range: {arguments: {min: 1, max: 140}}
 
   - name: stg_understat_shots
     columns:
@@ -37,10 +37,31 @@ models:
   - name: player_season_stats
     description: One row per player per season. Feeds player pages and the chart builder.
     data_tests:
-      - unique_combination: {columns: [season, player_id]}
+      - unique_combination: {arguments: {columns: [season, player_id]}}
     columns:
       - name: minutes
         data_tests: [not_null]
       - name: pass_completion
         data_tests:
-          - in_range: {min: 0, max: 1}
+          - in_range: {arguments: {min: 0, max: 1}}
+
+  - name: stg_shots
+    description: WhoScored shots in the shared xG vocabulary (see xg/features.py).
+    data_tests:
+      - unique_combination: {arguments: {columns: [match_id, event_index]}}
+    columns:
+      - name: situation
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [open_play, counter, corner, set_piece_other, free_kick_direct, penalty]
+
+  - name: shot_xg
+    description: premistats xG for every shot (dbt Python model using the trained xg_v1 model).
+    data_tests:
+      - unique_combination: {arguments: {columns: [match_id, event_index]}}
+    columns:
+      - name: xg
+        data_tests:
+          - not_null
+          - in_range: {arguments: {min: 0, max: 1}}

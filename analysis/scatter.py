@@ -16,7 +16,7 @@ import duckdb
 import matplotlib.pyplot as plt
 from adjustText import adjust_text
 
-from pipeline.config import DATA_DIR, ROOT
+from pipeline.config import CURRENT_SEASON, DATA_DIR, ROOT
 
 SURFACE = "#fcfcfb"
 INK, INK_2, INK_MUTED = "#0b0b0b", "#52514e", "#8a8984"
@@ -27,13 +27,24 @@ SKIP = {"season", "player_id", "player", "team", "position"}
 
 def load(min_minutes: int):
     con = duckdb.connect(str(DATA_DIR / "warehouse.duckdb"), read_only=True)
-    df = con.sql(f"select * from gold.player_season_stats where minutes >= {min_minutes}").df()
+    df = con.sql(f"select * from gold.player_season_stats "
+                 f"where season = '{CURRENT_SEASON}' and minutes >= {min_minutes}").df()
     con.close()
     return df
 
 
+ACRONYMS = {"Xg": "xG", "Npxg": "npxG", "Xa": "xA", "xg": "xG", "npxg": "npxG", "xa": "xA"}
+
+
 def pretty(col: str) -> str:
-    return col.replace("_p90", " per 90").replace("_", " ").capitalize()
+    words = col.replace("_p90", " per 90").replace("_", " ").capitalize().split()
+    return " ".join(ACRONYMS.get(w, w) for w in words)
+
+
+def credit(x: str, y: str) -> str:
+    # StatsBomb's licence requires credit on anything published from their data (decision 017).
+    uses_xg = any(k in c for c in (x, y) for k in ("xg", "xa"))
+    return "premistats · data: WhoScored" + (" · xG model trained on StatsBomb open data" if uses_xg else "")
 
 
 def draw(df, x: str, y: str, min_minutes: int, n_labels: int, out: Path) -> None:
@@ -67,7 +78,7 @@ def draw(df, x: str, y: str, min_minutes: int, n_labels: int, out: Path) -> None
     fig.text(0.08, 0.94, f"{pretty(x)} vs {pretty(y)}", fontsize=20, fontweight="bold", color=INK)
     fig.text(0.08, 0.905, f"Premier League 2026/27 · players with {min_minutes}+ minutes ({len(df)}) · "
              "lines show the median", fontsize=12, color=INK_2)
-    fig.text(0.97, 0.02, "premistats · data: WhoScored", fontsize=9, color=INK_MUTED, ha="right")
+    fig.text(0.97, 0.02, credit(x, y), fontsize=9, color=INK_MUTED, ha="right")
 
     out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, dpi=150, facecolor=SURFACE)

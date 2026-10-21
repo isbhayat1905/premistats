@@ -31,6 +31,17 @@ right touchline from the attacker's view. Distances in metres assume a 105 × 68
 | Non-penalty goals | Goals without the `Penalty` qualifier. |
 | Touches in box | Touch events starting inside the penalty area (x ≥ 83, 21.1 ≤ y ≤ 78.9). |
 
+## Expected goals
+Full details, results and limitations: [xg_model.md](xg_model.md). Model trained on StatsBomb open data.
+
+| Metric | Definition |
+|---|---|
+| xG | Probability a shot is scored, from premistats' own model (`silver.shot_xg`). Penalties = 0.73. |
+| npxG | xG excluding penalties. |
+| xA | xG of the shots a player set up with a pass (the pass linked to the shot by WhoScored). |
+| Goals minus xG | Goals − xG. Positive = finishing above expectation (or luck, in small samples). |
+| npxG per shot | npxG ÷ non-penalty shots: average chance quality. |
+
 ## Defending & duels
 | Metric | Definition |
 |---|---|

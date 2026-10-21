@@ -70,3 +70,25 @@ Stat definitions are SQL in dbt models, version-controlled and tested on every b
 ### 016: One `pipeline.run` command for the whole refresh
 **Date:** 2026-10-19
 `python -m pipeline.run` = ingest → bronze → `dbt build`. It stops at the first failing step. dbt's output paths are set through environment variables here, because the `dbt_project.yml` settings are deprecated.
+
+### 017: Train xG on StatsBomb open data, and follow its licence
+**Date:** 2026-10-21
+StatsBomb's free data has full-season shot data with clear terms. The licence (StatsBomb Public Data User Agreement) allows research use but forbids redistribution and **any commercial use of the data or analysis derived from it**, and it requires the StatsBomb logo on anything published from it. So: the data stays in git-ignored `data/`; premistats stays free with no ads or sponsorship while it uses this model; every xG chart and write-up credits StatsBomb.
+**Training set:** complete competitions only: the 2015/16 Premier League, La Liga, Serie A and Ligue 1, World Cups 2018/2022 and Euros 2020/2024 (1,747 matches, 43,717 shots). One-club samples (Barcelona-only La Liga seasons, and a 34-match "Bundesliga 2015/16" that is one club's season) are excluded so the model doesn't learn one team's habits.
+
+### 018: One shared shot vocabulary for both providers
+**Date:** 2026-10-21
+The model trains on StatsBomb shots and scores WhoScored shots, so both are mapped onto the same features (`xg/features.py`, `dbt/models/silver/stg_shots.sql`), and only features both providers record are used: location, body part, situation, first-time, one-on-one, volley, and assist type. StatsBomb's freeze frames (defender positions) and WhoScored's "big chance" flag exist on one side only, so the base model can't use them.
+
+### 019: Gradient boosting chosen over logistic regression; penalties outside the model
+**Date:** 2026-10-21
+On held-out matches (split by match to stop leakage): baseline log loss 0.2727 / AUC 0.739; logistic 0.2561 / 0.787; gradient boosting 0.2543 / 0.789; StatsBomb's own xG 0.2445 / 0.808 (it can see defender positions). Boosting wins narrowly and stays well calibrated. Penalties get a fixed xG equal to their conversion rate in training (0.73), because a model can't learn anything useful about them from location.
+
+### 020: xG is scored inside dbt (Python model)
+**Date:** 2026-10-21
+`dbt/models/silver/shot_xg.py` is a dbt Python model, so xG sits in the same lineage and tests as every SQL stat (every shot gets exactly one xG, between 0 and 1). The trained model file comes from `python -m xg.train` and lives in `data/models/` (git-ignored, since it's derived from StatsBomb data).
+
+### 021: Finding: the base model under-rates big chances, so add a calibration stage
+**Date:** 2026-10-21
+Against Understat on 2026/27, our xG agrees per team per match (r = 0.89) but totals 18% lower (189 vs 232; actual goals 195). Splitting by WhoScored's big-chance flag shows why: big chances convert at 31.6% but we average 24.6%, while other shots convert at 5.1% against our 6.2%. Without defender positions, the model can't tell a tap-in from a crowded shot taken from the same spot.
+**Plan:** keep the StatsBomb model and add a small calibration stage (logistic regression on the base model's logit + the big-chance flag), **trained on the 2025/26 PL season and tested on 2026/27**, so the test season is never used for fitting.

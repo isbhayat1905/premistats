@@ -39,3 +39,7 @@ python -m analysis.player_touches data/raw/whoscored/2627/<match_id>.json.gz "De
 ## Data & attribution
 
 Data is collected from public match centres (Understat for shots and xG, WhoScored for event data). Raw scraped data is never republished. The site shows only derived statistics, our own model outputs and charts. If you're a rights holder with concerns, please open an issue.
+
+**xG model:** trained on [StatsBomb open data](https://github.com/statsbomb/open-data) under the StatsBomb Public Data User Agreement (research use, non-commercial, attribution). See [docs/xg_model.md](docs/xg_model.md) for the model card and validation results.
+
+![xG calibration](docs/img/xg_calibration.png)
